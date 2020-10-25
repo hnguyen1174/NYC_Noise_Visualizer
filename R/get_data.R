@@ -5,7 +5,7 @@
 #' @return 311 noise complaint data
 #' @export
 get_311_noise_data <- function(online = FALSE, package = 'NycNoiseViz') {
-  
+
   if (online) {
     data_path <- 'https://data.cityofnewyork.us/resource/p5f6-bkga.csv'
     data  <- readr::read_csv(data_path)
@@ -13,7 +13,7 @@ get_311_noise_data <- function(online = FALSE, package = 'NycNoiseViz') {
     data_path <- system.file('inst/data/311_Noise_Complaints.csv', package = package)
     data <- vroom(data_path)
   }
-  
+
   processed_data <- prc_311_noise_data(data)
   processed_data
 }
@@ -25,8 +25,8 @@ get_311_noise_data <- function(online = FALSE, package = 'NycNoiseViz') {
 #' @return processed noise data
 #' @export
 prc_311_noise_data <- function(noise_data) {
-  
-  cols <- c('Unique Key', 
+
+  cols <- c('Unique Key',
             'Created Date', 'Closed Date',
             'Agency', 'Agency Name',
             'Complaint Type', 'Descriptor',
@@ -35,9 +35,9 @@ prc_311_noise_data <- function(noise_data) {
             'Intersection Street 1', 'Intersection Street 2', 'Address Type',
             'City', 'Status', 'Resolution Description', 'Borough',
             'Latitude', 'Longitude', 'Location')
-  
-  noise_data <- noise_data %>% 
-    select(all_of(cols)) %>% 
+
+  noise_data <- noise_data %>%
+    select(all_of(cols)) %>%
     dplyr::rename(ID = `Unique Key`,
                   COMPLAINT_DTE = `Created Date`,
                   CLOSED_DTE = `Closed Date`,
@@ -59,9 +59,30 @@ prc_311_noise_data <- function(noise_data) {
                   LAT = Latitude,
                   LONG = Longitude,
                   COORD = Location)
-  
+
 }
 
+#' Get NYC Neighborhoods
+#'
+#' @param tidy option for `tidy`
+#'
+#' @return NYC neighbordhoods
+#' @export
+get_nyc_neighborhoods <- function(tidy = FALSE) {
+
+  r <- GET('http://data.beta.nyc//dataset/0ff93d2d-90ba-457c-9f7e-39e47bf2ac5f/resource/35dd04fb-81b3-479b-a074-a27a37888ce7/download/d085e2f8d0b54d4590b1e7d1f35594c1pediacitiesnycneighborhoods.geojson')
+
+  nyc_neighborhoods <- readOGR(content(r, 'text'),
+                               'OGRGeoJSON', verbose = F)
+
+  if (tidy) {
+    out <- tidy(nyc_neighborhoods)
+  } else {
+    out <- nyc_neighborhoods
+  }
+
+  out
+}
 
 
 

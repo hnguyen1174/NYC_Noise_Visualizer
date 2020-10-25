@@ -1,0 +1,67 @@
+---
+title: "Exploration: Getting NYC Neighborhood"
+output: html_notebook
+---
+
+# 1. Set Up
+
+```{r load_pkgs}
+pkgs <- c('tidyverse',
+          'rgdal',
+          'devtools',
+          'tigris',
+          'leaflet',
+          'sp',
+          'ggmap',
+          'maptools',
+          'broom',
+          'httr')
+
+sapply(pkgs, require, character.only = TRUE)
+```
+
+```{r devtools_load_all}
+devtools::load_all()
+```
+
+# 2. Load and Process Data
+
+```{r}
+noise_data <- get_311_noise_data()
+```
+
+```{r neighborhoods}
+r <- GET('http://data.beta.nyc//dataset/0ff93d2d-90ba-457c-9f7e-39e47bf2ac5f/resource/35dd04fb-81b3-479b-a074-a27a37888ce7/download/d085e2f8d0b54d4590b1e7d1f35594c1pediacitiesnycneighborhoods.geojson')
+nyc_neighborhoods <- readOGR(content(r,'text'), 'OGRGeoJSON', verbose = F)
+nyc_neighborhoods_df <- tidy(nyc_neighborhoods)
+```
+
+```{r}
+register_google('AIzaSyCEDIQ4DLbc1lbNv4G1WZPiZRBQgLa5f9E')
+
+nyc_map <- get_map(location = c(lon = -74.00, lat = 40.71), 
+                   maptype = "terrain", zoom = 11)
+
+ggmap(nyc_map) + 
+  geom_polygon(data=nyc_neighborhoods_df, aes(x=long, y=lat, group=group), color="blue", fill=NA)
+
+ggmap(nyc_map) + 
+  geom_polygon(data=nyc_neighborhoods_df_test, aes(x=long, y=lat, group=group), color="blue", fill=NA)
+```
+
+```{r}
+leaflet(nyc_neighborhoods) %>%
+  addTiles() %>% 
+  addPolygons(popup = ~neighborhood) %>%
+  addProviderTiles("CartoDB.Positron")
+```
+
+
+
+
+
+
+
+
+
+
