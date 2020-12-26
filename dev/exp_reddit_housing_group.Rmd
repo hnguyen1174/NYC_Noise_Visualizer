@@ -1,0 +1,38 @@
+---
+title: "Exploration: Scrape NYC Housing Group on Reddit"
+author: Gary Nguyen
+---
+
+# 1. Set Up
+
+```{r load_pkgs}
+pkgs <- c('tidyverse',
+          'rgdal',
+          'devtools',
+          'tigris',
+          'leaflet',
+          'sp',
+          'ggmap',
+          'maptools',
+          'broom',
+          'httr',
+          'reticulate',
+          'glue',
+          'lubridate')
+
+sapply(pkgs, require, character.only = TRUE)
+```
+
+```{r devtools_load_all}
+devtools::load_all()
+```
+
+# 2. Get Reddit Scraping Data
+
+```{r}
+assign('df', get_reddit_data())
+```
+
+
+
+
