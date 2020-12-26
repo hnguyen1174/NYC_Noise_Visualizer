@@ -20,12 +20,13 @@ scrape_reddit_data <- function(date_time_str) {
 #' @return processed reddit data
 #' @export
 prc_reddit_data <- function(reddit_data) {
-  start_date <- today() - months(1)
+  start_date <- today() - months(6)
 
   reddit_data_processed <- reddit_data %>%
     select(-X1) %>%
     mutate(title = tolower(title),
-           body = if_else(is.na(body), 'NOT AVAILABLE', body)) %>%
+           body = if_else(is.na(body), 'NOT AVAILABLE', body),
+           body = tolower(body)) %>%
     filter(created > start_date,
            str_detect(title, 'listing')) %>%
     mutate(studio = str_detect(title, 'studio') | str_detect(body, 'studio'))

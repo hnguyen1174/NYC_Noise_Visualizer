@@ -1,5 +1,5 @@
 ---
-title: "Exploration: Scrape NYC Housing Group on Reddit"
+title: "Exploration: Scrape NYC Housing Group from Social Media"
 author: Gary Nguyen
 ---
 
@@ -29,10 +29,15 @@ devtools::load_all()
 
 # 2. Get Reddit Scraping Data
 
-```{r}
-assign('df', get_reddit_data())
+```{r get_reddit_scraped_data}
+# Please paste this to Console instead
+df_reddit <- get_reddit_data()
 ```
 
+# 3. Get Facebook Scraping Data
 
-
+```{r get_facebook_scraped_data}
+# Please paste this to Console instead
+df_facebook <- get_facebook_data()
+```
 
