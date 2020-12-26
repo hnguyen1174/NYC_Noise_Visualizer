@@ -6,6 +6,9 @@
 \usage{
 save_api_key(package = "NycNoiseViz")
 }
+\arguments{
+\item{package}{default to `NycNoiseViz`.}
+}
 \description{
 Save new API Key
 }

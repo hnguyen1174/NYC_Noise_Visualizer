@@ -1,6 +1,6 @@
 ---
 title: "Exploration: Getting NYC Neighborhood"
-output: html_notebook
+author: Gary Nguyen
 ---
 
 # 1. Set Up
@@ -26,7 +26,7 @@ devtools::load_all()
 
 # 2. Load and Process Data
 
-```{r}
+```{r load_noise data}
 noise_data <- get_311_noise_data()
 ```
 
@@ -35,24 +35,62 @@ nyc_neighborhoods <- get_nyc_neighborhoods()
 nyc_neighborhoods_df <- get_nyc_neighborhoods(tidy = TRUE)
 ```
 
-```{r}
-register_google('AIzaSyCEDIQ4DLbc1lbNv4G1WZPiZRBQgLa5f9E')
+# 3. Mapping
 
+```{r mapping}
 nyc_map <- get_map(location = c(lon = -74.00, lat = 40.71), 
-                   maptype = "terrain", zoom = 11)
+                   maptype = 'terrain', zoom = 11)
 
 ggmap(nyc_map) + 
-  geom_polygon(data=nyc_neighborhoods_df, aes(x=long, y=lat, group=group), color="blue", fill=NA)
-
-ggmap(nyc_map) + 
-  geom_polygon(data=nyc_neighborhoods_df_test, aes(x=long, y=lat, group=group), color="blue", fill=NA)
+  geom_polygon(data=nyc_neighborhoods_df, aes(x = long, y = lat, group = group), 
+               color = 'blue', fill = NA)
 ```
 
-```{r}
+```{r mapping_with_neighborhood_names}
 leaflet(nyc_neighborhoods) %>%
   addTiles() %>% 
   addPolygons(popup = ~neighborhood) %>%
   addProviderTiles("CartoDB.Positron")
+```
+
+```{r}
+polys = attr(nyc_neighborhoods, 'polygons')
+npolys = length(polys)
+for (i in 1:npolys){
+  poly = polys[[i]]
+  polys2 = attr(poly, 'Polygons')
+  npolys2 = length(polys2)
+  for (j in 1:npolys2){
+     coords = coordinates(polys2[[j]])
+  }
+}
+
+extractCoords <- function(sp.df)
+{
+    results <- list()
+    for(i in 1:length(sp.df@polygons[[1]]@Polygons))
+    {
+        results[[i]] <- sp.df@polygons[[1]]@Polygons[[i]]@coords
+    }
+    results <- Reduce(rbind, results)
+    results
+}
+```
+
+```{r}
+library(sf)
+# Shapefile from ABS: 
+# https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1270.0.55.004July%202016?OpenDocument
+map = read_sf("data/ABS/shapes/SUA_2016_AUST.shp")
+
+pnts_sf <- st_as_sf(pnts, coords = c('y', 'x'), crs = st_crs(map))
+
+pnts <- pnts_sf %>% mutate(
+  intersection = as.integer(st_intersects(geometry, map))
+  , area = if_else(is.na(intersection), '', map$SUA_NAME16[intersection])
+) 
+
+pnts
 ```
 
 
